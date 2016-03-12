@@ -43,25 +43,40 @@ static bool bDoneFlag;
 static unsigned char nLastDiscrepancy_u8;
 static unsigned char nRomAddr_au8[DS1820_ADDR_LEN];
 
-void output_low(void)
+void output_low(void);
+void output_high(void);
+bool input(void);
+bool ow_reset(void);
+void ow_write_bit(bool);
+void ow_write_byte(unsigned char);
+bool ow_read_bit(void);
+unsigned char ow_read_byte(void);
+void ow_addr_device(unsigned char);
+signed int ds_get_temp(void);
+bool find_next_device(void);
+bool find_first_device(void);
+void Timer0_Init(void);
+
+
+void output_low()
 {
     OW_TRIS = OUTPUT;
     OW_PIN = LOW;
 }
 
-void output_high(void)
+void output_high()
 {
     OW_TRIS = OUTPUT;
     OW_PIN = HIGH;
 }
 
-bool input(void)
+bool input()
 {
     OW_TRIS = INPUT;
     return (OW_PIN);
 }
 
-bool ow_reset(void)
+bool ow_reset()
 {
     bool device_found;
 
@@ -118,7 +133,7 @@ void ow_write_byte(unsigned char val_u8)
    }
 }
 
-bool ow_read_bit(void)
+bool ow_read_bit()
 {
    bool bBit;
 
@@ -139,7 +154,7 @@ bool ow_read_bit(void)
    return (bBit);
 }
 
-unsigned char ow_read_byte(void)
+unsigned char ow_read_byte()
 {
    unsigned char i;
    unsigned char value = 0;
@@ -172,7 +187,7 @@ void ow_addr_device(unsigned char nAddrMethod)
    }
 }
 
-signed int ds_get_temp(void)
+signed int ds_get_temp()
 {
     unsigned char i;
     unsigned int temp_u16;
@@ -213,7 +228,7 @@ signed int ds_get_temp(void)
     return (highres_u16);
 }
 
-bool find_next_device(void)
+bool find_next_device()
 {
     unsigned char state_u8;
     unsigned char byteidx_u8;
@@ -345,7 +360,7 @@ bool find_next_device(void)
     return next_b;
 }
 
-bool find_first_device(void)
+bool find_first_device()
 {
     nLastDiscrepancy_u8 = 0;
     bDoneFlag = false;
@@ -353,7 +368,7 @@ bool find_first_device(void)
     return (find_next_device());
 }
 
-void Timer0_Init(void)
+void Timer0_Init()
 {
     // Set up Interrupts for timer
     INTCONbits.TMR0IF = 0;          // clear roll-over interrupt flag
