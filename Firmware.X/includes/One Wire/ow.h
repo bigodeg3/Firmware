@@ -39,10 +39,6 @@ typedef unsigned char bool;
 
 #define DS1820_FAMILY_CODE_DS18B20      0x28
 
-static bool bDoneFlag;
-static unsigned char nLastDiscrepancy_u8;
-static unsigned char nRomAddr_au8[DS1820_ADDR_LEN];
-
 void output_low(void);
 void output_high(void);
 bool input(void);
@@ -51,10 +47,10 @@ void ow_write_bit(bool);
 void ow_write_byte(unsigned char);
 bool ow_read_bit(void);
 unsigned char ow_read_byte(void);
-void ow_addr_device(unsigned char);
-signed int ds_get_temp(void);
-bool find_next_device(void);
-bool find_first_device(void);
+void ow_addr_device(unsigned char, unsigned char**);
+signed int ds_get_temp(unsigned char**);
+bool find_next_device(unsigned char**, unsigned char*, bool*);
+bool find_first_device(unsigned char**, unsigned char*, bool*);
 void Timer0_Init(void);
 
 
@@ -169,7 +165,7 @@ unsigned char ow_read_byte()
    return (value);
 }
 
-void ow_addr_device(unsigned char nAddrMethod)
+void ow_addr_device(unsigned char nAddrMethod, unsigned char* nRomAddr_au8[])
 {
    unsigned char i;
 
@@ -178,7 +174,7 @@ void ow_addr_device(unsigned char nAddrMethod)
       ow_write_byte(DS1820_CMD_MATCHROM);           /* address single devices on bus */
       for (i = 0; i < DS1820_ADDR_LEN; i ++)
       {
-         ow_write_byte(nRomAddr_au8[i]);
+         ow_write_byte(&nRomAddr_au8[i]);
       }
    }
    else
@@ -187,7 +183,7 @@ void ow_addr_device(unsigned char nAddrMethod)
    }
 }
 
-signed int ds_get_temp()
+signed int ds_get_temp(unsigned char *nRomAddr_au8[])
 {
     unsigned char i;
     unsigned int temp_u16;
@@ -196,7 +192,7 @@ signed int ds_get_temp()
 
     /* --- start temperature conversion -------------------------------------- */
     ow_reset();
-    ow_addr_device(DS1820_CMD_MATCHROM);         /* address the device */
+    ow_addr_device(DS1820_CMD_MATCHROM, &nRomAddr_au8);         /* address the device */
     output_high();
     ow_write_byte(DS1820_CMD_CONVERTTEMP);      /* start conversion */
     Delay10KTCYx(250);
@@ -206,7 +202,7 @@ signed int ds_get_temp()
 
     /* --- read sratchpad ---------------------------------------------------- */
     ow_reset();
-    ow_addr_device(DS1820_CMD_MATCHROM);   /* address the device */
+    ow_addr_device(DS1820_CMD_MATCHROM, &nRomAddr_au8);   /* address the device */
     ow_write_byte(DS1820_CMD_READSCRPAD);  /* read scratch pad */
 
     /* read scratch pad data */
@@ -219,7 +215,7 @@ signed int ds_get_temp()
     temp_u16 = (unsigned int)((unsigned int)scrpad[DS1820_REG_TEMPMSB] << 8);
     temp_u16 |= (unsigned int)(scrpad[DS1820_REG_TEMPLSB]);
 
-    if (nRomAddr_au8[0] == DS1820_FAMILY_CODE_DS18B20)
+    if (*nRomAddr_au8[0] == DS1820_FAMILY_CODE_DS18B20)
     {
         highres_u16 = temp_u16;
         highres_u16 <<= 4;
@@ -228,7 +224,7 @@ signed int ds_get_temp()
     return (highres_u16);
 }
 
-bool find_next_device()
+bool find_next_device(unsigned char* nRomAddr_au8[], unsigned char* nLastDiscrepancy_u8, bool* bDoneFlag)
 {
     unsigned char state_u8;
     unsigned char byteidx_u8;
@@ -242,14 +238,14 @@ bool find_next_device()
     /* init ROM address */
     for (byteidx_u8=0; byteidx_u8 < 8; byteidx_u8 ++)
     {
-        nRomAddr_au8[byteidx_u8] = 0x00;
+        *nRomAddr_au8[byteidx_u8] = 0x00;
     }
 
     bStatus = ow_reset();        /* reset the 1-wire */
 
-    if (!bStatus || bDoneFlag)        /* no device found */
+    if (!bStatus || *bDoneFlag)        /* no device found */
     {
-        nLastDiscrepancy_u8 = 0;     /* reset the search */
+        *nLastDiscrepancy_u8 = 0;     /* reset the search */
         return false;
     }
 
@@ -297,14 +293,14 @@ bool find_next_device()
             else
             {
                 /* if there was a conflict on the last iteration */
-                if (bitpos_u8 < nLastDiscrepancy_u8)
+                if (bitpos_u8 < *nLastDiscrepancy_u8)
                 {
                     /* take same bit as in last iteration */
-                    bit_b = ((nRomAddr_au8[byteidx_u8] & mask_u8) > 0);
+                    bit_b = ((*nRomAddr_au8[byteidx_u8] & mask_u8) > 0);
                 }
                 else
                 {
-                    bit_b = (bitpos_u8 == nLastDiscrepancy_u8);
+                    bit_b = (bitpos_u8 == *nLastDiscrepancy_u8);
                 }
 
                 if (bit_b == 0)
@@ -316,11 +312,11 @@ bool find_next_device()
             /* store bit in ROM address */
            if (bit_b != 0)
            {
-               nRomAddr_au8[byteidx_u8] |= mask_u8;
+               *nRomAddr_au8[byteidx_u8] |= mask_u8;
            }
            else
            {
-               nRomAddr_au8[byteidx_u8] &= ~mask_u8;
+               *nRomAddr_au8[byteidx_u8] &= ~mask_u8;
            }
 
            ow_write_bit(bit_b);
@@ -345,13 +341,13 @@ bool find_next_device()
     if (bitpos_u8 < 65)
     {
         /* reset the last discrepancy to 0 */
-        nLastDiscrepancy_u8 = 0;
+        *nLastDiscrepancy_u8 = 0;
     }
     else
     {
         /* search was successful */
-        nLastDiscrepancy_u8 = nDiscrepancyMarker_u8;
-        bDoneFlag = (nLastDiscrepancy_u8 == 0);
+        *nLastDiscrepancy_u8 = nDiscrepancyMarker_u8;
+        *bDoneFlag = (*nLastDiscrepancy_u8 == 0);
 
         /* indicates search is not complete yet, more parts remain */
         next_b = true;
@@ -360,12 +356,12 @@ bool find_next_device()
     return next_b;
 }
 
-bool find_first_device()
+bool find_first_device(unsigned char* nRomAddr_au8[], unsigned char* nLastDiscrepancy_u8, bool* bDoneFlag)
 {
-    nLastDiscrepancy_u8 = 0;
-    bDoneFlag = false;
+    *nLastDiscrepancy_u8 = 0;
+    *bDoneFlag = false;
 
-    return (find_next_device());
+    return (find_next_device(&nRomAddr_au8, &nLastDiscrepancy_u8, &bDoneFlag));
 }
 
 void Timer0_Init()

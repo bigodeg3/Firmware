@@ -375,21 +375,25 @@ void ProcessIO(void)
     int size, i;
     signed int temperature[2];
     unsigned char aux_nRomAddr_au8[2][8];
+    
+    unsigned char* nRomAddr_au8[DS1820_ADDR_LEN];
+    unsigned char* nLastDiscrepancy_u8;
+    bool* bDoneFlag;
 
     sensor_count = 0;
 
-    if (find_first_device())
+    if (find_first_device(&nRomAddr_au8, &nLastDiscrepancy_u8, &bDoneFlag))
     {
         do
         {
             /* get temperature raw value (resolution 1/256°C) */
-            temperature[sensor_count] = ds_get_temp();
+            temperature[sensor_count] = ds_get_temp(&nRomAddr_au8);
             for (i = 0; i < DS1820_ADDR_LEN; i++) {
-                aux_nRomAddr_au8[sensor_count][i] = nRomAddr_au8[i];
+                aux_nRomAddr_au8[sensor_count][i] = *nRomAddr_au8[i];
             }
             sensor_count ++;
         }
-        while (find_next_device());
+        while (find_next_device(&nRomAddr_au8, &nLastDiscrepancy_u8, &bDoneFlag));
     }
     
     // User Application USB tasks
