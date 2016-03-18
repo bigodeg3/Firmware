@@ -81,6 +81,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>..</Elem>
+    <Elem>/Applications/microchip/mplabc18/v3.46/bin/LKR</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -173,6 +174,7 @@
         <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="ToolFirmwareFilePath" value=""/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

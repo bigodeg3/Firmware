@@ -377,7 +377,7 @@ void ProcessIO(void)
     unsigned char aux_nRomAddr_au8[2][8];
 
     sensor_count = 0;
-
+    
     if (find_first_device())
     {
         do
