@@ -1,15 +1,2 @@
-Warning[2054] includes/One Wire/ow.h 177 : suspicious pointer conversion
-Warning[2054] includes/One Wire/ow.h 195 : suspicious pointer conversion
-Warning[2054] includes/One Wire/ow.h 205 : suspicious pointer conversion
-Warning[2054] includes/One Wire/ow.h 364 : suspicious pointer conversion
-Warning[2054] includes/One Wire/ow.h 364 : suspicious pointer conversion
-Warning[2054] includes/One Wire/ow.h 364 : suspicious pointer conversion
-Warning[2054] src/main.c 385 : suspicious pointer conversion
-Warning[2054] src/main.c 385 : suspicious pointer conversion
-Warning[2054] src/main.c 385 : suspicious pointer conversion
-Warning[2054] src/main.c 396 : suspicious pointer conversion
-Warning[2054] src/main.c 396 : suspicious pointer conversion
-Warning[2054] src/main.c 396 : suspicious pointer conversion
-Warning[2054] src/main.c 390 : suspicious pointer conversion
+Warning[2066] src/main.c 402 : type qualifier mismatch in assignment
 Warning[2066] src/main.c 406 : type qualifier mismatch in assignment
-Warning[2066] src/main.c 410 : type qualifier mismatch in assignment

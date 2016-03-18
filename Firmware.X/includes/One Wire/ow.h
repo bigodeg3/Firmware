@@ -54,10 +54,10 @@ void ow_write_bit(bool);
 void ow_write_byte(unsigned char);
 bool ow_read_bit(void);
 unsigned char ow_read_byte(void);
-void ow_addr_device(unsigned char, unsigned char**);
-signed int ds_get_temp(unsigned char**);
-bool find_next_device(unsigned char**, unsigned char*, bool*);
-bool find_first_device(unsigned char**, unsigned char*, bool*);
+void ow_addr_device(unsigned char);
+signed int ds_get_temp(void);
+bool find_next_device(void);
+bool find_first_device(void);
 void Timer0_Init(void);
 
 #endif
