@@ -52,24 +52,12 @@
 ********************************************************************/
 
 /** INCLUDES *******************************************************/
-#include "usb.h"
+
+#include "Can2515.h"
 #include "usb_function_cdc.h"
-
-#include <stdio.h>
-
 #include "HardwareProfile.h"
-
-#include <delays.h>
-#include <i2c.h>
 #include "ow.h"
 #include "rtc.h"
-
-#include <can2510.h>
-#include <p18f4550.h>
-#include <spi.h>
-#include <adc.h>
-#include "Can2515.h"
-#include "spi_can.h"
 
 /** CONFIGURATION **************************************************/
 
@@ -111,17 +99,6 @@
 //      #pragma config EBTR2    = OFF
 //      #pragma config EBTR3    = OFF
         #pragma config EBTRB    = OFF
-
-
-/** I N C L U D E S **********************************************************/
-
-#include "GenericTypeDefs.h"
-#include "Compiler.h"
-#include "usb_config.h"
-#include "usb_device.h"
-#include "usb.h"
-
-#include "HardwareProfile.h"
 
 /** V A R I A B L E S ********************************************************/
 #pragma udata

@@ -1,3 +1,9 @@
+#include <can2510.h>
+#include <delays.h>
+#include <p18f4550.h>
+#include <spi.h>
+#include "spi_can.h"
+
 typedef unsigned char BYTE;
 void configCan2515(void);
 void txCAN(BYTE dataReceived1, BYTE dataReceived2);

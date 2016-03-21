@@ -1,9 +1,4 @@
 #include "Can2515.h"
-#include <can2510.h>
-#include <delays.h>
-#include <p18f4550.h>
-#include <spi.h>
-#include "spi_can.h"
 
 // M�todo de configura��o do controlador CAN externo
 
