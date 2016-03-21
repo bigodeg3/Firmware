@@ -1,6 +1,6 @@
 #include "rtc.h"
 
-void hardware_init (void)
+void configDS1307 (void)
 {
     //CloseI2C();               // close i2c if was operating earlier
     OpenI2C(MASTER,SLEW_OFF);	// I2C MODULE MASTER MODE / 100KHz
@@ -10,7 +10,7 @@ void hardware_init (void)
     Delay10KTCYx(50);
 }
 
-void Initialize_DS1307(void)
+void rtcInit(void)
 {
     StartI2C();
     WriteI2C(0xD0);

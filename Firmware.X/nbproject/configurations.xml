@@ -63,8 +63,10 @@
                      projectFiles="true">
       </logicalFolder>
       <logicalFolder name="One Wire" displayName="One Wire" projectFiles="true">
+        <itemPath>src/One Wire/ow.c</itemPath>
       </logicalFolder>
       <logicalFolder name="RTC" displayName="RTC" projectFiles="true">
+        <itemPath>src/RTC/rtc.c</itemPath>
       </logicalFolder>
       <logicalFolder name="USB" displayName="USB" projectFiles="true">
         <itemPath>src/USB/usb_descriptors.c</itemPath>

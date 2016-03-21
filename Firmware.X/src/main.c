@@ -112,6 +112,7 @@ int sensor_count;         /* sensor counter */
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
+void timer0Init(void);
 void ProcessIO(void);
 void USBDeviceTasks(void);
 void YourHighPriorityISRCode();
@@ -248,7 +249,6 @@ void main(void)
 int main(void)
 #endif
 {
-    int i;
     InitializeSystem();
 
     while(1)
@@ -281,7 +281,7 @@ int main(void)
 		// Application related code may be added here, or in the ProcessIO() function.
         //ProcessIO();
 
-        //DelayMs(1000);
+        //Delay10KTCYx(250);
     }//end while
 }//end main
 
@@ -313,11 +313,11 @@ static void InitializeSystem(void)
     USBDeviceInit();	//usb_device.c.  Initializes USB module SFRs and firmware
     					//variables to known states.
 
-    hardware_init ();
-    Initialize_DS1307();
+    configDS1307();
+    rtcInit();
 
         // Init Timer0
-    Timer0_Init();              // now enables interrupt.
+    timer0Init();              // now enables interrupt.
 
         // Set up global interrupts
     RCONbits.IPEN = 1;          // Enable priority levels on interrupts
@@ -327,6 +327,18 @@ static void InitializeSystem(void)
     configCan2515();
 }//end InitializeSystem
 
+void timer0Init()
+{
+    // Set up Interrupts for timer
+    INTCONbits.TMR0IF = 0;          // clear roll-over interrupt flag
+    INTCON2bits.TMR0IP = 0;         // Timer0 is low priority interrupt
+    INTCONbits.TMR0IE = 1;          // enable the Timer0 interrupt.
+    // Set up timer itself
+    T0CON = 0b00000111;             // prescale 1:256 - about 1.4 second maximum delay.
+    TMR0H = 0;                      // clear timer - always write upper byte first
+    TMR0L = 0;
+    T0CONbits.TMR0ON = 1;           // start timer
+}
 
 /********************************************************************
  * Function:        void ProcessIO(void)

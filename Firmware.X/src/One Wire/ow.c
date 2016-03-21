@@ -313,16 +313,3 @@ bool find_first_device()
 
     return (find_next_device());
 }
-
-void Timer0_Init()
-{
-    // Set up Interrupts for timer
-    INTCONbits.TMR0IF = 0;          // clear roll-over interrupt flag
-    INTCON2bits.TMR0IP = 0;         // Timer0 is low priority interrupt
-    INTCONbits.TMR0IE = 1;          // enable the Timer0 interrupt.
-    // Set up timer itself
-    T0CON = 0b00000111;             // prescale 1:256 - about 1.4 second maximum delay.
-    TMR0H = 0;                      // clear timer - always write upper byte first
-    TMR0L = 0;
-    T0CONbits.TMR0ON = 1;           // start timer
-}

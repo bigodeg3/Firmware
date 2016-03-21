@@ -13,10 +13,8 @@
 #include <i2c.h>
 #include <delays.h>
 
-void hardware_init (void);
-
-void Initialize_DS1307(void);
-
+void configDS1307 (void);
+void rtcInit(void);
 unsigned char rtc_get_time (unsigned char);
 
 #endif	/* RTC_H */

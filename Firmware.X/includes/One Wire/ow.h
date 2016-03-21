@@ -58,6 +58,5 @@ void ow_addr_device(unsigned char);
 signed int ds_get_temp(void);
 bool find_next_device(void);
 bool find_first_device(void);
-void Timer0_Init(void);
 
 #endif
