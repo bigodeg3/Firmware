@@ -137,7 +137,6 @@ signed int ds_get_temp()
 {
     unsigned char i;
     unsigned int temp_u16;
-    unsigned int highres_u16;
     unsigned char scrpad[DS1820_SCRPADMEM_LEN];
 
     /* --- start temperature conversion -------------------------------------- */
@@ -167,11 +166,8 @@ signed int ds_get_temp()
 
     if (nRomAddr_au8[0] == DS1820_FAMILY_CODE_DS18B20)
     {
-        highres_u16 = temp_u16;
-        highres_u16 <<= 4;
+       return (temp_u16);
     }
-
-    return (highres_u16);
 }
 
 bool find_next_device()
