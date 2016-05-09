@@ -16,8 +16,8 @@ void rtcInit(void)
     WriteI2C(0xD0);
     WriteI2C(0x00);
     WriteI2C(0x80);    //CH = 1 Stop oscillator
-    WriteI2C(0x49);    //Minute
-    WriteI2C(0x12);    //Hour
+    WriteI2C(0x53);    //Minute
+    WriteI2C(0x16);    //Hour
     WriteI2C(0x02);    //Monday
     WriteI2C(0x09);    //09
     WriteI2C(0x05);    //May

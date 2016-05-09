@@ -7,6 +7,7 @@
 
 #include <p18f4550.h>
 #include <delays.h>
+#include "GenericTypeDefs.h"
 
 #define OUTPUT  0
 #define INPUT   1
@@ -41,6 +42,7 @@ typedef unsigned char bool;
 #define DS1820_CMD_RECALLEE      0xB8
 
 #define DS1820_FAMILY_CODE_DS18B20      0x28
+#define NUMBER_OF_SENSORS               2
 
 extern bool bDoneFlag;
 extern unsigned char nLastDiscrepancy_u8;
@@ -55,7 +57,7 @@ void ow_write_byte(unsigned char);
 bool ow_read_bit(void);
 unsigned char ow_read_byte(void);
 void ow_addr_device(unsigned char);
-signed int ds_get_temp(void);
+INT16 ds_get_temp(void);
 bool find_next_device(void);
 bool find_first_device(void);
 void get_sensor_id(unsigned char aux_nRomAddr_au8[][DS1820_ADDR_LEN], int);

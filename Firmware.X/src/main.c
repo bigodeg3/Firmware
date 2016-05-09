@@ -103,13 +103,12 @@
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 
-char USB_In_Buffer[128];
+char USB_In_Buffer[80];
 char USB_Out_Buffer[1];
 int prevTemp = 0;
-int intervalo = 30;
+int intervalo = 10;
 int count = 0;
 int sensor_count;         /* sensor counter */
-#define NUMBER_OF_SENSORS 2 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -362,9 +361,9 @@ void ProcessIO(void)
 {
     BYTE numBytesRead;
     
-    int size, i, j, intpart, decpart;
-    float temp, decPartAux;
-    signed int temperature[NUMBER_OF_SENSORS];
+    int size, i, j;//, intpart, decpart;
+//    float temp, decPartAux;
+    INT16 temperature[NUMBER_OF_SENSORS];
     unsigned char aux_nRomAddr_au8[NUMBER_OF_SENSORS][DS1820_ADDR_LEN];
     unsigned char time[NUMBER_OF_SENSORS][6];
 
@@ -390,12 +389,14 @@ void ProcessIO(void)
         {
             if(USBUSARTIsTxTrfReady())
             {
-                temp = temperature[j]*0.0625;               // 12-bit resolution
-                intpart = temp;                             // Get the integer part
-                decPartAux = temp - intpart;                // Get fractional part
-                decpart = (int)(decPartAux*10000);          // Turn into integer
-                
-                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura.: %d.%04d °C\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], intpart, decpart);
+//                temp = temperature[j]*0.0625;               // 12-bit resolution
+//                intpart = temp;                             // Get the integer part
+//                decPartAux = temp - intpart;                // Get fractional part
+//                decpart = (int)(decPartAux*10000);          // Turn into integer
+//                
+//                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d.%04d C\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], intpart, decpart);
+                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
+//                size = sprintf (USB_In_Buffer,"h%02u%02u%02u%02u%02u20%02us%02X%02X%02X%02X%02X%02X%02X%02Xt%d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
                 putUSBUSART(USB_In_Buffer,size);
             }
             else

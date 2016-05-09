@@ -133,10 +133,10 @@ void ow_addr_device(unsigned char nAddrMethod)
    }
 }
 
-signed int ds_get_temp()
+INT16 ds_get_temp()
 {
     unsigned char i;
-    unsigned int temp_u16;
+    INT16 temp_u16;
     unsigned char scrpad[DS1820_SCRPADMEM_LEN];
 
     /* --- start temperature conversion -------------------------------------- */
@@ -161,8 +161,8 @@ signed int ds_get_temp()
     }
 
     temp_u16 = 0;
-    temp_u16 = (unsigned int)((unsigned int)scrpad[DS1820_REG_TEMPMSB] << 8);
-    temp_u16 |= (unsigned int)(scrpad[DS1820_REG_TEMPLSB]);
+    temp_u16 = (INT16)((INT16)scrpad[DS1820_REG_TEMPMSB] << 8);
+    temp_u16 |= (INT16)(scrpad[DS1820_REG_TEMPLSB]);
 
     if (nRomAddr_au8[0] == DS1820_FAMILY_CODE_DS18B20)
     {
@@ -208,7 +208,7 @@ bool find_next_device()
         {
             state_u8 = 2;
         }
-
+        Delay10TCYx(144);
         /* read bit complement */
         if (ow_read_bit() != 0)
         {
