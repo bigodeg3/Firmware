@@ -58,5 +58,6 @@ void ow_addr_device(unsigned char);
 signed int ds_get_temp(void);
 bool find_next_device(void);
 bool find_first_device(void);
+void get_sensor_id(unsigned char aux_nRomAddr_au8[][DS1820_ADDR_LEN], int);
 
 #endif

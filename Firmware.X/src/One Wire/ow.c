@@ -309,3 +309,11 @@ bool find_first_device()
 
     return (find_next_device());
 }
+
+void get_sensor_id(unsigned char aux_nRomAddr_au8[][DS1820_ADDR_LEN], int sensor_count)
+{
+    int i;
+    for (i = 0; i < DS1820_ADDR_LEN; i++) {
+        aux_nRomAddr_au8[sensor_count][i] = nRomAddr_au8[i];
+    }
+}

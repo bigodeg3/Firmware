@@ -374,9 +374,10 @@ void ProcessIO(void)
         {
             /* get temperature raw value (resolution 1/16°C) */
             temperature[sensor_count] = ds_get_temp();
-            for (i = 0; i < DS1820_ADDR_LEN; i++) {
-                aux_nRomAddr_au8[sensor_count][i] = nRomAddr_au8[i];
-            }
+            get_sensor_id(aux_nRomAddr_au8, sensor_count);
+//            for (i = 0; i < DS1820_ADDR_LEN; i++) {
+//                aux_nRomAddr_au8[sensor_count][i] = nRomAddr_au8[i];
+//            }
             sensor_count ++;
         }
         while (find_next_device());
@@ -389,7 +390,7 @@ void ProcessIO(void)
         {
             if(USBUSARTIsTxTrfReady())
             {
-                size = sprintf (USB_In_Buffer,"\r\ns%02X%02X%02X%02X%02X%02X%02X%02X t %d ", aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
+                size = sprintf (USB_In_Buffer,"s%02X%02X%02X%02X%02X%02X%02X%02X t %d\r\n", aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
                 putUSBUSART(USB_In_Buffer,size);
             }
             else
