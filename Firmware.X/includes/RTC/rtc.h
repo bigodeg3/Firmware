@@ -16,6 +16,7 @@
 void configDS1307 (void);
 void rtcInit(void);
 unsigned char rtc_get_time (unsigned char);
+void get_time(unsigned char time[][7], int);
 
 #endif	/* RTC_H */
 

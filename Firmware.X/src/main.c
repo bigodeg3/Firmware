@@ -103,10 +103,10 @@
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 
-char USB_In_Buffer[64];
+char USB_In_Buffer[128];
 char USB_Out_Buffer[1];
 int prevTemp = 0;
-int intervalo = 10;
+int intervalo = 30;
 int count = 0;
 int sensor_count;         /* sensor counter */
 #define NUMBER_OF_SENSORS 2 
@@ -315,7 +315,7 @@ static void InitializeSystem(void)
     					//variables to known states.
 
     configDS1307();
-    rtcInit();
+    //rtcInit();
 
         // Init Timer0
     timer0Init();              // now enables interrupt.
@@ -325,7 +325,7 @@ static void InitializeSystem(void)
     INTCONbits.GIEL = 1;        // Low priority interrupts allowed
     INTCONbits.GIEH = 1;        // Interrupting enabled.
 
-    configCan2515();
+    //configCan2515();
 }//end InitializeSystem
 
 void timer0Init()
@@ -362,9 +362,11 @@ void ProcessIO(void)
 {
     BYTE numBytesRead;
     
-    int size, i, j;
+    int size, i, j, intpart, decpart;
+    float temp, decPartAux;
     signed int temperature[NUMBER_OF_SENSORS];
     unsigned char aux_nRomAddr_au8[NUMBER_OF_SENSORS][DS1820_ADDR_LEN];
+    unsigned char time[NUMBER_OF_SENSORS][6];
 
     sensor_count = 0;
     
@@ -374,10 +376,8 @@ void ProcessIO(void)
         {
             /* get temperature raw value (resolution 1/16°C) */
             temperature[sensor_count] = ds_get_temp();
+            get_time(time, sensor_count);
             get_sensor_id(aux_nRomAddr_au8, sensor_count);
-//            for (i = 0; i < DS1820_ADDR_LEN; i++) {
-//                aux_nRomAddr_au8[sensor_count][i] = nRomAddr_au8[i];
-//            }
             sensor_count ++;
         }
         while (find_next_device());
@@ -390,7 +390,12 @@ void ProcessIO(void)
         {
             if(USBUSARTIsTxTrfReady())
             {
-                size = sprintf (USB_In_Buffer,"s%02X%02X%02X%02X%02X%02X%02X%02X t %d\r\n", aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
+                temp = temperature[j]*0.0625;               // 12-bit resolution
+                intpart = temp;                             // Get the integer part
+                decPartAux = temp - intpart;                // Get fractional part
+                decpart = (int)(decPartAux*10000);          // Turn into integer
+                
+                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura.: %d.%04d °C\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], intpart, decpart);
                 putUSBUSART(USB_In_Buffer,size);
             }
             else

@@ -16,12 +16,12 @@ void rtcInit(void)
     WriteI2C(0xD0);
     WriteI2C(0x00);
     WriteI2C(0x80);    //CH = 1 Stop oscillator
-    WriteI2C(0x37);    //Minute
-    WriteI2C(0x19);    //Hour
-    WriteI2C(0x01);    //Sunday
-    WriteI2C(0x27);    //27
-    WriteI2C(0x09);    //September
-    WriteI2C(0x15);    //2015
+    WriteI2C(0x49);    //Minute
+    WriteI2C(0x12);    //Hour
+    WriteI2C(0x02);    //Monday
+    WriteI2C(0x09);    //09
+    WriteI2C(0x05);    //May
+    WriteI2C(0x16);    //2016
     StopI2C();         //Stop the I2C Protocol
     Delay10KTCYx(250);
     Delay10KTCYx(250);
@@ -50,4 +50,14 @@ unsigned char rtc_get_time (unsigned char address)
     time = ReadI2C();
 
     return (((time & 0xF0) >> 4) * 10) + (time & 0x0F); // BCD to decimal
+}
+
+void get_time(unsigned char time[][6], int sensor_count)
+{
+    time[sensor_count][0] = rtc_get_time(0x00);     //get second
+    time[sensor_count][1] = rtc_get_time(0x01);     //get minute
+    time[sensor_count][2] = rtc_get_time(0x02);     //get hour
+    time[sensor_count][3] = rtc_get_time(0x04);     //get day
+    time[sensor_count][4] = rtc_get_time(0x05);     //get month
+    time[sensor_count][5] = rtc_get_time(0x06);     //get year
 }
