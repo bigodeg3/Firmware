@@ -103,8 +103,8 @@
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 
-char USB_In_Buffer[80];
-char USB_Out_Buffer[1];
+char USB_In_Buffer[6];
+char USB_Out_Buffer[80];
 int prevTemp = 0;
 int intervalo = 10;
 int count = 0;
@@ -204,6 +204,7 @@ void USBCBSendResume(void);
                     // Check for Timer0 Interrupt
                 if  (INTCONbits.TMR0IF)
                 {
+                    T0CONbits.TMR0ON = 0;           // stop timer
                     INTCONbits.TMR0IF = 0;          // clear (reset) flag
 
                     // set Timer0
@@ -216,6 +217,7 @@ void USBCBSendResume(void);
                         count = 0;
                         ProcessIO();
                     }
+                    T0CONbits.TMR0ON = 1;           // start timer
                     
                 }
 	}	//This return will be a "retfie", since this is in a #pragma interruptlow section 
@@ -313,8 +315,8 @@ static void InitializeSystem(void)
     USBDeviceInit();	//usb_device.c.  Initializes USB module SFRs and firmware
     					//variables to known states.
 
-    configDS1307();
-    //rtcInit();
+    configDS1307();   // comment to test CAN
+//    rtcInit();        // comment to test CAN
 
         // Init Timer0
     timer0Init();              // now enables interrupt.
@@ -324,7 +326,7 @@ static void InitializeSystem(void)
     INTCONbits.GIEL = 1;        // Low priority interrupts allowed
     INTCONbits.GIEH = 1;        // Interrupting enabled.
 
-    //configCan2515();
+//    configCan2515();    // uncomment to test CAN
 }//end InitializeSystem
 
 void timer0Init()
@@ -360,12 +362,11 @@ void timer0Init()
 void ProcessIO(void)
 {
     BYTE numBytesRead;
-    
     int size, i, j;//, intpart, decpart;
 //    float temp, decPartAux;
     INT16 temperature[NUMBER_OF_SENSORS];
     unsigned char aux_nRomAddr_au8[NUMBER_OF_SENSORS][DS1820_ADDR_LEN];
-    unsigned char time[NUMBER_OF_SENSORS][6];
+    unsigned char time[NUMBER_OF_SENSORS][6]; // comment to test CAN
 
     sensor_count = 0;
     
@@ -385,65 +386,62 @@ void ProcessIO(void)
     // User Application USB tasks
     if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
         
-        for (j = 0; j < sensor_count; j++)
+    for (j = 0; j < sensor_count; j++)
+    {
+        if(USBUSARTIsTxTrfReady())
         {
-            if(USBUSARTIsTxTrfReady())
-            {
-//                temp = temperature[j]*0.0625;               // 12-bit resolution
-//                intpart = temp;                             // Get the integer part
-//                decPartAux = temp - intpart;                // Get fractional part
-//                decpart = (int)(decPartAux*10000);          // Turn into integer
-//                
-//                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d.%04d C\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], intpart, decpart);
-                size = sprintf (USB_In_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
-//                size = sprintf (USB_In_Buffer,"h%02u%02u%02u%02u%02u20%02us%02X%02X%02X%02X%02X%02X%02X%02Xt%d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);
-                putUSBUSART(USB_In_Buffer,size);
-            }
-            else
-            {
-                j--;
-            }
-            CDCTxService();
-        }
-        
-//    if(USBUSARTIsTxTrfReady())
-//    {
-//        numBytesRead = getsUSBUSART(USB_Out_Buffer,1);
-//        if(numBytesRead != 0)
-//        {
-////            if(USB_Out_Buffer[0] == 0x23) // first byte = "#"
-////            {
-////                if(USB_Out_Buffer[1] == 0x74) // second byte = "t"
-////                {
-////                    char bufferIntervalo[4];
-////                    int i;
-////                    int j = 0;
-////                    for(i = 2; i < 6; i++)
-////                    {
-////                        bufferIntervalo[j] = USB_Out_Buffer[i];
-////                        j++;
-////                    }
-////                    intervalo = atoi(bufferIntervalo);
-////                }
-////            }
-//            Delay10KTCYx(100);
-//            tx_CAN(USB_Out_Buffer[0] + 1);
-//            Delay10KTCYx(100);
-//        }
-//        else
-//        {
-//            if(sensor_count != 0)
-//            {
-//                Delay10KTCYx(100);
-//                USB_In_Buffer[size] = rxCAN(0);
-//                Delay10KTCYx(100);
-//                size++;
-//                putUSBUSART(USB_In_Buffer,size);
-//            }
-//        }
-//    }
+//            temp = temperature[j]*0.0625;               // 12-bit resolution
+//            intpart = temp;                             // Get the integer part
+//            decPartAux = temp - intpart;                // Get fractional part
+//            decpart = (int)(decPartAux*10000);          // Turn into integer
 //
-//    CDCTxService();
+//            size = sprintf (USB_Out_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d.%04d C\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], intpart, decpart); // message with formatted temperature
+//            size = sprintf (USB_Out_Buffer,"Horario: %02u:%02u:%02u %02u/%02u/20%02u, ID: %02X%02X%02X%02X%02X%02X%02X%02X, Temperatura: %d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]); // message with raw temperature
+//            size = sprintf (USB_Out_Buffer,"h%02u%02u%02u%02u%02u20%02us%02X%02X%02X%02X%02X%02X%02X%02Xt%d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]);    // packet
+            size = sprintf (USB_Out_Buffer,"h%02u%02u%02u%02u%02u20%02us%02X%02X%02X%02X%02X%02X%02X%02Xt%d %d\r\n", time[j][2], time[j][1], time[j][0], time[j][3], time[j][4], time[j][5], aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j], intervalo);    // to test USB communication (to watch "intervalo" change)
+//            size = sprintf (USB_Out_Buffer,"s%02X%02X%02X%02X%02X%02X%02X%02Xt%d  \r\n", aux_nRomAddr_au8[j][0], aux_nRomAddr_au8[j][1], aux_nRomAddr_au8[j][2], aux_nRomAddr_au8[j][3], aux_nRomAddr_au8[j][4], aux_nRomAddr_au8[j][5], aux_nRomAddr_au8[j][6], aux_nRomAddr_au8[j][7], temperature[j]); // message without time (RTC off) to test CAN
+            putUSBUSART(USB_Out_Buffer,size);
+            
+            numBytesRead = getsUSBUSART(USB_In_Buffer,6);
+            if(numBytesRead != 0)
+            {
+                if(USB_In_Buffer[0] == 0x23) // first byte = "#"
+                {
+                    if(USB_In_Buffer[1] == 0x74) // second byte = "t"
+                    {
+                        char bufferIntervalo[4];
+                        int k;
+                        int l = 0;
+                        for(k = 2; k < 6; k++)
+                        {
+                            bufferIntervalo[l] = USB_In_Buffer[k];
+                            l++;
+                        }
+                        intervalo = atoi(bufferIntervalo);
+                    }
+                }
+//                Delay10KTCYx(100);
+//                tx_CAN(USB_In_Buffer[0] + 1);   // send an echo of the next key pressed
+//                Delay10KTCYx(100);
+            }
+//            else
+//            {
+//                if(sensor_count != 0)
+//                {
+//                    Delay10KTCYx(100);
+//                    USB_Out_Buffer[size - 3] = rxCAN(0); // size - 3 just to print before the \r\n
+//                    Delay10KTCYx(100);
+//                    size++;
+//                    putUSBUSART(USB_Out_Buffer,size);
+//                }
+//            }
+        }
+        else
+        {
+            j--;
+        }
+        CDCTxService();
+    }
 }		//end ProcessIO
 
 

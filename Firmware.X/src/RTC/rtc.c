@@ -16,12 +16,12 @@ void rtcInit(void)
     WriteI2C(0xD0);
     WriteI2C(0x00);
     WriteI2C(0x80);    //CH = 1 Stop oscillator
-    WriteI2C(0x53);    //Minute
+    WriteI2C(0x48);    //Minute
     WriteI2C(0x16);    //Hour
-    WriteI2C(0x02);    //Monday
-    WriteI2C(0x09);    //09
-    WriteI2C(0x05);    //May
-    WriteI2C(0x16);    //2016
+    WriteI2C(0x03);    //Tuesday
+    WriteI2C(0x14);    //14
+    WriteI2C(0x03);    //March
+    WriteI2C(0x17);    //2017
     StopI2C();         //Stop the I2C Protocol
     Delay10KTCYx(250);
     Delay10KTCYx(250);
